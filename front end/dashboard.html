@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FoodBridge Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .dashboard {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 280px;
+      background: linear-gradient(180deg, #1a1a2e 0%, #0f3460 100%);
+      color: white;
+      padding: 30px 20px;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      box-shadow: 4px 0 25px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 26px;
+      font-weight: 900;
+      font-family: 'Montserrat', sans-serif;
+      margin-bottom: 50px;
+      background: linear-gradient(135deg, #FF6B35 0%, #FFA500 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -1px;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 30px;
+    }
+
+    .nav-item {
+      padding: 14px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      color: #b8c5d6;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 107, 53, 0.15);
+      color: #FF6B35;
+      border-left-color: #FF6B35;
+      transform: translateX(5px);
+    }
+
+    .nav-item.active {
+      background: rgba(255, 107, 53, 0.2);
+      color: #FF6B35;
+      border-left-color: #FF6B35;
+      font-weight: 700;
+    }
+
+    .sidebar-logout {
+      margin-top: auto;
+      padding: 14px 16px;
+      background: linear-gradient(135deg, #ff4757 0%, #ee5a6f 100%);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+
+    .sidebar-logout:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(255, 71, 87, 0.3);
+    }
+
+    .main-content {
+      margin-left: 280px;
+      flex: 1;
+      padding: 40px;
+      overflow-y: auto;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+    }
+
+    .dashboard-header {
+      background: white;
+      padding: 30px 35px;
+      border-radius: 18px;
+      margin-bottom: 35px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .header-left h1 {
+      font-size: 36px;
+      font-weight: 900;
+      font-family: 'Montserrat', sans-serif;
+      color: #1a1a2e;
+      letter-spacing: -1px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 800;
+      box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+    }
+
+    .user-details p {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .user-details p:first-child {
+      font-weight: 700;
+      color: #1a1a2e;
+      font-size: 15px;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+      animation: fadeInUp 0.4s ease;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+      border-top: 4px solid #FF6B35;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 40px rgba(255, 107, 53, 0.2);
+    }
+
+    .card-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 800;
+      font-family: 'Montserrat', sans-serif;
+      color: #1a1a2e;
+      margin-bottom: 8px;
+    }
+
+    .card-desc {
+      font-size: 14px;
+      color: #777;
+      line-height: 1.6;
+    }
+
+    .form-wrapper {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .form-title {
+      font-size: 24px;
+      font-weight: 800;
+      font-family: 'Montserrat', sans-serif;
+      color: #1a1a2e;
+      margin-bottom: 28px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 13px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #FF6B35;
+      box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1);
+    }
+
+    .form-group textarea {
+      grid-column: 1 / -1;
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .submit-btn {
+      grid-column: 1 / -1;
+      padding: 15px;
+      background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
+    }
+
+    .table-wrapper {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    th {
+      padding: 18px;
+      text-align: left;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 16px 18px;
+      border-bottom: 1px solid #e0e0e0;
+      color: #555;
+    }
+
+    tbody tr:hover {
+      background: #f8f9fa;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .status-active {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-claimed {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 50px;
+      color: #999;
+    }
+
+    .msg {
+      padding: 14px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .msg.show {
+      display: block;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .msg.success {
+      background: #d4edda;
+      color: #155724;
+      border: 2px solid #c3e6cb;
+    }
+
+    .msg.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 2px solid #f5c6cb;
+    }
+
+    .profile-edit-btn {
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 20px;
+    }
+
+    .profile-edit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(102, 126, 234, 0.3);
+    }
+
+    .profile-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .info-item {
+      padding: 12px;
+      background: white;
+      border-radius: 8px;
+    }
+
+    .info-label {
+      font-weight: 700;
+      color: #1a1a2e;
+      font-size: 13px;
+      margin-bottom: 5px;
+    }
+
+    .info-value {
+      color: #FF6B35;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+      }
+      .sidebar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .main-content {
+        margin-left: 0;
+        padding: 20px;
+      }
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .profile-info {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="dashboard">
+  <div class="sidebar">
+    <div class="sidebar-brand">🍽️ FoodBridge</div>
+    <div class="sidebar-nav">
+      <div class="nav-item active" onclick="switchTab('overview', this)">Dashboard</div>
+      <div class="nav-item" id="postFoodNav" onclick="switchTab('post', this)">Post Food</div>
+      <div class="nav-item" onclick="switchTab('browse', this)">Browse Food</div>
+      <div class="nav-item" id="myPostsNav" onclick="switchTab('myposts', this)">My Posts</div>
+      <div class="nav-item" id="historyNav" onclick="switchTab('history', this)">History</div>
+      <div class="nav-item" onclick="switchTab('profile', this)">Profile</div>
+    </div>
+    <button class="sidebar-logout" onclick="logout()">Logout</button>
+  </div>
+
+  <div class="main-content">
+    <div class="dashboard-header">
+      <div class="header-left"><h1>Dashboard</h1></div>
+      <div class="header-right">
+        <div class="user-info">
+          <div class="user-avatar" id="userAvatar">U</div>
+          <div class="user-details">
+            <p id="userName">User</p>
+            <p id="userType">Type</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section id="overview" class="section active">
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-icon">♻️</div>
+          <div class="card-title">Reduce Waste</div>
+          <div class="card-desc">Help divert surplus food from landfills and contribute to sustainability.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">❤️</div>
+          <div class="card-title">Feed Hope</div>
+          <div class="card-desc">Support NGOs and communities by sharing surplus food with those in need.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">🌍</div>
+          <div class="card-title">Global Impact</div>
+          <div class="card-desc">Make a meaningful difference at scale by connecting donors with communities.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">🤝</div>
+          <div class="card-title">Community</div>
+          <div class="card-desc">Build purposeful connections between restaurants, NGOs, and changemakers.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="post" class="section">
+      <div class="form-wrapper">
+        <div class="form-title">Post Surplus Food</div>
+        <div id="postMsg" class="msg"></div>
+        <form id="postForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Food Name *</label>
+              <input type="text" id="foodName" placeholder="e.g., Paneer Tikka" required>
+            </div>
+            <div class="form-group">
+              <label>Category *</label>
+              <select id="foodCategory" required>
+                <option value="">Select Category</option>
+                <option value="cooked">Cooked Meals</option>
+                <option value="raw">Raw Ingredients</option>
+                <option value="bakery">Bakery</option>
+                <option value="beverages">Beverages</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Quantity *</label>
+              <input type="number" id="foodQty" placeholder="Amount" min="1" required>
+            </div>
+            <div class="form-group">
+              <label>Unit *</label>
+              <select id="foodUnit" required>
+                <option value="">Select Unit</option>
+                <option value="kg">Kilograms</option>
+                <option value="pieces">Pieces</option>
+                <option value="liters">Liters</option>
+                <option value="servings">Servings</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea id="foodDesc" placeholder="Add details about the food..."></textarea>
+            </div>
+            <div class="form-group">
+              <label>Expiry Time (Hours) *</label>
+              <input type="number" id="foodExpiry" placeholder="e.g., 6" min="1" required>
+            </div>
+            <button type="submit" class="submit-btn">Post Food</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+   <section id="browse" class="section">
+  <div class="table-wrapper">
+    <table id="browseTable">
+      <thead>
+        <tr>
+          <th>Food Name</th>
+          <th>Category</th>
+          <th>Quantity</th>
+          <th>Unit</th>
+          <th>Status</th>
+          <th>Expiry (hrs)</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="7" class="no-data">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+<!-- Food Details Modal -->
+<div id="foodModal" style="display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; background:#000a; z-index:2000; align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:16px; max-width:450px; width:95%; padding:32px; box-shadow:0 6px 32px #0003; position:relative;">
+    <button onclick="closeFoodModal()" style="position:absolute;top:10px;right:15px; background:none; border:none; font-size:24px; color:#999; cursor:pointer;">×</button>
+    <div id="foodModalContent"></div>
+  </div>
+</div>
+
+
+    <section id="myposts" class="section">
+      <div class="table-wrapper">
+        <table id="myPostsTable">
+          <thead>
+            <tr>
+              <th>Food Name</th>
+              <th>Category</th>
+              <th>Quantity</th>
+              <th>Unit</th>
+              <th>Status</th>
+              <th>Expiry (hrs)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="6" class="no-data">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="history" class="section">
+      <div class="table-wrapper">
+        <table id="historyTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Food</th>
+              <th>Action</th>
+              <th>Quantity</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="5" class="no-data">No history yet</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="profile" class="section">
+      <div class="form-wrapper">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div class="form-title" style="margin-bottom: 0;">Profile</div>
+          <button class="profile-edit-btn" id="editProfileBtn" onclick="toggleProfileEdit()">Edit Profile</button>
+        </div>
+
+        <!-- View Profile -->
+        <div id="viewProfile" style="display: block;">
+          <div class="profile-info">
+            <div class="info-item">
+              <div class="info-label">User ID:</div>
+              <div class="info-value" id="viewUserId">--</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Account Type:</div>
+              <div class="info-value" id="viewUserType">--</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label" id="orgNameLabel">Restaurant Name:</div>
+              <div class="info-value" id="viewOrgName">Not Set</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Contact Email:</div>
+              <div class="info-value" id="viewEmail">Not Set</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Phone:</div>
+              <div class="info-value" id="viewPhone">Not Set</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Address:</div>
+              <div class="info-value" id="viewAddress">Not Set</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Description:</div>
+              <div class="info-value" id="viewDescription">Not Set</div>
+            </div>
+          </div>
+          <p style="color: #666; line-height: 1.8; font-size: 15px; margin-top: 20px;">
+            Thank you for being part of FoodBridge! Together, we're making a difference by reducing food waste and feeding communities in need.
+          </p>
+        </div>
+
+        <!-- Edit Profile -->
+        <div id="editProfile" style="display: none;">
+          <div id="profileMsg" class="msg"></div>
+          <form id="profileForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label id="orgNameEditLabel">Restaurant Name *</label>
+                <input type="text" id="editOrgName" placeholder="Your restaurant/NGO name" required>
+              </div>
+              <div class="form-group">
+                <label>Contact Email *</label>
+                <input type="email" id="editEmail" placeholder="contact@example.com" required>
+              </div>
+              <div class="form-group">
+                <label>Phone Number *</label>
+                <input type="text" id="editPhone" placeholder="+91 XXXXX XXXXX" required>
+              </div>
+              <div class="form-group">
+                <label>Address *</label>
+                <input type="text" id="editAddress" placeholder="Your address" required>
+              </div>
+              <div class="form-group">
+                <label>Description/About Us</label>
+                <textarea id="editDescription" placeholder="Tell us about your organization..."></textarea>
+              </div>
+              <button type="submit" class="submit-btn">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  const API_URL = 'https://food-bridge-back-end.onrender.com/api';
+
+  window.addEventListener('load', () => {
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+    const userType = localStorage.getItem('userType') || '';
+
+    if (!token) {
+      window.location.href = 'index.html';
+      return;
+    }
+
+    const isNGO = userType.toLowerCase().includes('ngo');
+
+    // Set user info
+    document.getElementById('userName').textContent = userType || 'User';
+    document.getElementById('userType').textContent = `ID: ${userId}`;
+    document.getElementById('userAvatar').textContent = userType ? userType.charAt(0).toUpperCase() : 'U';
+
+    // Hide sections for NGO
+    if (isNGO) {
+      document.getElementById('postFoodNav').style.display = 'none';
+      document.getElementById('post').style.display = 'none';
+      document.getElementById('myPostsNav').style.display = 'none';
+      document.getElementById('myposts').style.display = 'none';
+      document.getElementById('historyNav').style.display = 'none';
+      document.getElementById('history').style.display = 'none';
+      document.getElementById('orgNameLabel').textContent = 'NGO Name:';
+      document.getElementById('orgNameEditLabel').textContent = 'NGO Name *';
+    }
+
+    loadProfileData();
+    loadBrowseFood();
+    if (!isNGO) loadMyPosts();
+    autoRemoveExpiredFood();
+    setInterval(autoRemoveExpiredFood, 60000); // Check every minute
+  });
+
+  function switchTab(tab, elem) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(tab).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    if (elem) elem.classList.add('active');
+  }
+
+  function toggleProfileEdit() {
+    const viewProfile = document.getElementById('viewProfile');
+    const editProfile = document.getElementById('editProfile');
+    const btn = document.getElementById('editProfileBtn');
+
+    if (editProfile.style.display === 'none') {
+      viewProfile.style.display = 'none';
+      editProfile.style.display = 'block';
+      btn.textContent = 'Cancel';
+    } else {
+      viewProfile.style.display = 'block';
+      editProfile.style.display = 'none';
+      btn.textContent = 'Edit Profile';
+    }
+  }
+
+  function showMsg(text, type, elemId) {
+    const msg = document.getElementById(elemId);
+    msg.textContent = text;
+    msg.className = `msg show ${type}`;
+    setTimeout(() => msg.classList.remove('show'), 4000);
+  }
+
+  async function loadProfileData() {
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+
+    try {
+      const res = await fetch(`${API_URL}/users/${userId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+
+      document.getElementById('viewUserId').textContent = userId;
+      document.getElementById('viewUserType').textContent = document.getElementById('userType').textContent;
+      document.getElementById('viewOrgName').textContent = data.orgName || 'Not Set';
+      document.getElementById('viewEmail').textContent = data.email || 'Not Set';
+      document.getElementById('viewPhone').textContent = data.phone || 'Not Set';
+      document.getElementById('viewAddress').textContent = data.address || 'Not Set';
+      document.getElementById('viewDescription').textContent = data.description || 'Not Set';
+
+      document.getElementById('editOrgName').value = data.orgName || '';
+      document.getElementById('editEmail').value = data.email || '';
+      document.getElementById('editPhone').value = data.phone || '';
+      document.getElementById('editAddress').value = data.address || '';
+      document.getElementById('editDescription').value = data.description || '';
+    } catch (err) {
+      console.log('Profile loading error:', err);
+    }
+  }
+
+  document.getElementById('profileForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+
+    const data = {
+      orgName: document.getElementById('editOrgName').value,
+      email: document.getElementById('editEmail').value,
+      phone: document.getElementById('editPhone').value,
+      address: document.getElementById('editAddress').value,
+      description: document.getElementById('editDescription').value
+    };
+
+    try {
+      const res = await fetch(`${API_URL}/users/${userId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(data)
+      });
+
+      if (res.ok) {
+        showMsg('✓ Profile updated successfully!', 'success', 'profileMsg');
+        setTimeout(() => {
+          loadProfileData();
+          toggleProfileEdit();
+        }, 1500);
+      } else {
+        showMsg('✗ Failed to update profile', 'error', 'profileMsg');
+      }
+    } catch (err) {
+      showMsg('✗ Network error', 'error', 'profileMsg');
+    }
+  });
+
+  document.getElementById('postForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    const data = {
+      name: document.getElementById('foodName').value,
+      category: document.getElementById('foodCategory').value,
+      quantity: parseInt(document.getElementById('foodQty').value),
+      unit: document.getElementById('foodUnit').value,
+      description: document.getElementById('foodDesc').value,
+      expiryTime: parseInt(document.getElementById('foodExpiry').value)
+    };
+
+    try {
+      const res = await fetch(`${API_URL}/food`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+      if (res.ok) {
+        showMsg('✓ Food posted successfully!', 'success', 'postMsg');
+        document.getElementById('postForm').reset();
+        setTimeout(() => loadMyPosts(), 1000);
+      } else {
+        showMsg(`✗ ${result.message || 'Failed to post'}`, 'error', 'postMsg');
+      }
+    } catch (err) {
+      showMsg('✗ Network error', 'error', 'postMsg');
+    }
+  });
+
+ async function loadBrowseFood() {
+  try {
+    const res = await fetch(`${API_URL}/food`);
+    const foods = await res.json();
+
+    const tbody = document.querySelector('#browseTable tbody');
+    if (!foods || foods.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="no-data">No food available</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = foods.map((f, idx) => `
+      <tr>
+        <td><strong>${f.name}</strong></td>
+        <td>${f.category}</td>
+        <td>${f.quantity}</td>
+        <td>${f.unit}</td>
+        <td><span class="status-badge ${f.status === 'Active' ? 'status-active' : 'status-claimed'}">${f.status}</span></td>
+        <td>${f.expiryTime}</td>
+        <td>
+          <button style="padding:6px 14px; background:#FF6B35; color:#fff; border:none; border-radius:5px; cursor:pointer; font-weight:600;"
+            onclick='showFoodModal(${JSON.stringify(f)})'>
+            View Details
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    document.querySelector('#browseTable tbody').innerHTML = '<tr><td colspan="7" class="no-data">Error loading</td></tr>';
+  }
+}
+
+
+  async function loadMyPosts() {
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+
+    try {
+      const res = await fetch(`${API_URL}/food/restaurant/${userId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const foods = await res.json();
+
+      const tbody = document.querySelector('#myPostsTable tbody');
+      if (!foods || foods.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="no-data">You haven\'t posted any food yet</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = foods.map(f => `
+        <tr>
+          <td><strong>${f.name}</strong></td>
+          <td>${f.category}</td>
+          <td>${f.quantity}</td>
+          <td>${f.unit}</td>
+          <td><span class="status-badge ${f.status === 'Active' ? 'status-active' : 'status-claimed'}">${f.status}</span></td>
+          <td>${f.expiryTime}</td>
+        </tr>
+      `).join('');
+    } catch (err) {
+      document.querySelector('#myPostsTable tbody').innerHTML = '<tr><td colspan="6" class="no-data">Error loading</td></tr>';
+    }
+  }
+
+  async function autoRemoveExpiredFood() {
+    const token = localStorage.getItem('token');
+    try {
+      await fetch(`${API_URL}/food/auto-remove`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      loadBrowseFood();
+      loadMyPosts();
+    } catch (err) {
+      console.log('Auto-remove error:', err);
+    }
+  }
+
+  function logout() {
+    localStorage.clear();
+    window.location.href = 'index.html';
+  }
+  async function showFoodModal(food) {
+  // Get restaurant info
+  let restInfo = null;
+  try {
+    const res = await fetch(`${API_URL}/users/${food.postedBy?._id || food.postedBy}`);
+    restInfo = await res.json();
+  } catch {}
+
+  let html = `<h2 style='font-family:Montserrat,sans-serif; font-size:1.35em; margin-bottom:14px;'>Food Details</h2>
+    <div><b>Name:</b> ${food.name}</div>
+    <div><b>Category:</b> ${food.category}</div>
+    <div><b>Quantity:</b> ${food.quantity} ${food.unit}</div>
+    <div><b>Status:</b> ${food.status}</div>
+    <div><b>Expires in (hours):</b> ${food.expiryTime}</div>
+    <div><b>Description:</b> <br>${food.description || 'Not Provided'}</div>
+    <hr style="margin:18px 0;">
+    <h3 style='font-family:Montserrat,sans-serif; font-size:1.15em; margin-bottom:10px;'>Restaurant Info</h3>`;
+  if (restInfo && restInfo.orgName) {
+    html += `<div><b>Name:</b> ${restInfo.orgName}</div>
+    <div><b>Address:</b> ${restInfo.address || 'Not Provided'}</div>
+    <div><b>Email:</b> ${restInfo.email || 'Not Provided'}</div>
+    <div><b>Phone:</b> ${restInfo.phone || 'Not Provided'}</div>
+    <div><b>Description:</b> ${restInfo.description || 'Not Provided'}</div>`;
+  } else {
+    html += `<div><i>Restaurant info not available.</i></div>`;
+  }
+
+  document.getElementById('foodModalContent').innerHTML = html;
+  document.getElementById('foodModal').style.display = 'flex';
+}
+
+function closeFoodModal() {
+  document.getElementById('foodModal').style.display = 'none';
+}async function showFoodModal(food) {
+  const restInfo = food.postedBy;
+
+  let html = `<h2 style='font-family:Montserrat,sans-serif; font-size:1.35em; margin-bottom:14px;'>Food Details</h2>
+    <div><b>Name:</b> ${food.name}</div>
+    <div><b>Category:</b> ${food.category}</div>
+    <div><b>Quantity:</b> ${food.quantity} ${food.unit}</div>
+    <div><b>Status:</b> ${food.status}</div>
+    <div><b>Expires in (hours):</b> ${food.expiryTime}</div>
+    <div><b>Description:</b> <br>${food.description || 'Not Provided'}</div>
+    <hr style="margin:18px 0;">
+    <h3 style='font-family:Montserrat,sans-serif; font-size:1.15em; margin-bottom:10px;'>Restaurant Info</h3>`;
+
+  if (restInfo && restInfo.orgName) {
+    html += `<div><b>Name:</b> ${restInfo.orgName}</div>
+    <div><b>Address:</b> ${restInfo.address || 'Not Provided'}</div>
+    <div><b>Email:</b> ${restInfo.email || 'Not Provided'}</div>
+    <div><b>Phone:</b> ${restInfo.phone || 'Not Provided'}</div>
+    <div><b>Description:</b> ${restInfo.description || 'Not Provided'}</div>`;
+  } else {
+    html += `<div><i>Restaurant info not available.</i></div>`;
+  }
+  document.getElementById('foodModalContent').innerHTML = html;
+  document.getElementById('foodModal').style.display = 'flex';
+}
+
+
+</script>
+
+</body>
+</html>
